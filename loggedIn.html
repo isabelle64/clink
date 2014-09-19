@@ -1,0 +1,969 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>clink!</title>
+		
+		<link rel="stylesheet"  href="http://jquerymobile.com/demos/1.2.0/css/themes/default/jquery.mobile-1.2.0.css" />
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.css" />
+		<style>
+			body			{text-align:center;}
+			table			{margin:auto;text-align:center;border-spacing:5;}
+			#settings		{margin-right: 100px;}
+			#actName		{font-size: 30px;}
+			#row			{margin-top: 20px;}
+			#space			{width: 50px;}
+			#space2			{width: 480px;}
+			#pic			{margin-top: 30px; margin-left: 80px; float: left;}
+			#userName		{margin-right: 650px;}
+			#upload			{margin-left: 260px; float: left;}
+			#loginButton	{display:block;}
+			ul.images		{margin: 0px; white-space: nowrap; width: 600px; overflow-x: auto; position: absolute;}
+			ul.images li	{display: inline; width: 150px; height: 150px;}
+			#covers			{position: relative;}
+			#fonts			{font-family: "Trebuchet MS", Helvetica, sans-serif;}
+			.inner-image	{position: absolute; top: 20px; left: 500px;}
+			#newphoto		{position: absolute; right: 40px; left: 1150px; top: 130px;}
+			#newphotocover	{position: absolute; right: 70px; top: 240px; align: center;}
+			#profpic		{position: absolute; left: 40px; right: 1150px; top: 130px;}
+			.inputs			{align: center; margin-left: 300px; margin-right: 300px;}
+			#options		{position: absolute; left: 280px; width: 420px; float: left;}
+			#age			{position: absolute; right: 280px; width: 420px; float: left;}
+			#boxed			{position: absolute; right: 370px;}
+			
+			#sizes			{font-size: 22px; left: 150px; width: 600px; font-family: "Trebuchet MS", Helvetica, sans-serif;}
+			#clicks			{margin-left: 150px; width: 600px;}
+			#done			{margin-left: 755px; width: 600px;}
+			#square			{font-family: "Trebuchet MS", Helvetica, sans-serif;}
+			#hate			{margin-left: 150px; width: 540px;}
+			#love			{margin-right: 150px; width: 540px;}
+		</style>
+		
+		<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+		<script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>
+		<script src="http://jquerymobile.com/demos/1.2.0/docs/_assets/js/jqm-docs.js"></script> 
+		<script>
+			function saveProfile() {	//When profile "saved", hide profile div for now
+				document.getElementById("myProfile").style.display = "none";				
+			}
+		</script>		
+	</head>
+	
+	<body>
+		<script src="//connect.facebook.net/en_US/all.js"></script>
+		<script type="text/javascript">
+			// Initialize the Facebook JavaScript SDK
+			FB.init({
+				appId: '589384171112889',
+				xfbml: true,
+				status: true,
+				cookie: true,
+			});
+
+			// Here we run a very simple test of the Graph API after login is successful. 
+			// This testAPI() function is only called in those cases. 
+			function testAPI() {
+				console.log('Welcome!  Fetching your information.... ');
+				FB.api('/me', function(response) {
+				console.log('Good to see you, ' + response.name + '.');
+				});
+			}
+
+			// Check if the current user is logged in and has authorized the app
+			FB.getLoginStatus(checkLoginStatus);
+
+			// Login in the current user via Facebook and ask for email permission
+			function authUser() {
+				FB.login(checkLoginStatus, {scope:'email'});
+			}
+
+			// Check the result of the user status and display login button if necessary
+			function checkLoginStatus(response) {
+				//alert("this is the test");
+				var loginStatus = "You are not logged in yet. <br/>Please sign in with facebook."
+				
+				if(response && response.status == 'connected') {//response successful and connected
+					testAPI();
+					alert("You are logged in!");
+					//window.location.replace("http://www.blahblah.byethost7.com/#loggedIn");
+					//window.location.hash("http://www.blahblah.byethost7.com/#loggedIn");
+					// Hide the login button
+					document.getElementById('loginButton').style.display = 'none';
+					// Now Personalize the User Experience
+					console.log('Access Token: ' + response.authResponse.accessToken);
+				} else { //if not connected
+					FB.login();
+					document.getElementById("status").innerHTML = loginStatus;
+					alert("You are not signed in yet!");
+					window.location.replace("http://www.blahblah.byethost7.com/#home");
+					// Display the login button
+					document.getElementById('loginButton').style.display = 'block';
+				}
+			}
+			
+			var activities = ['Car Pooling', 'Child Care', 'Concerts', 'Consulting', 'Conventions/Meetings', 'Dog Walking', 'Event Planning', 'Fairs/Events', 'House Chores', 'Movies', 'Moving', 'Senior Care', 'Shopping', 'Travelling', 'Tutoring'];
+			
+			var favorites = [];
+
+			function makeLists(){
+				document.getElementById('actList').innerHTML='';
+				for (var i = 0; i < activities.length; i++){
+					$('#actList').append('<li><a onclick="addFav(\''+ activities[i] + '\')">' + (activities[i]) + '</a></li>').listview('refresh');
+				};
+				document.getElementById('favList').innerHTML='';
+				for (var i = 0; i < favorites.length; i++){
+					$('#favList').append('<li><a href = "#' + ((favorites[i]).toLowerCase()) + '">' + (favorites[i]) + '</a></li>').listview('refresh');
+				};
+			}
+			
+ 			function addFav(thing){
+				favorites.push(thing);
+				document.getElementById('favList').innerHTML='';
+				for (var i = 0; i < favorites.length; i++){
+					$('#favList').append('<li><a href = "#' + ((favorites[i]).toLowerCase()) + '">' + (favorites[i]) + '</a></li>').listview('refresh');
+				};
+			}
+			
+			function makeListsOne(){
+				document.getElementById('actList1').innerHTML='';
+				for (var i = 0; i < activities.length; i++){
+					$('#actList1').append('<li><a onclick="addFavOne(\''+ activities[i] + '\')">' + (activities[i]) + '</a></li>').listview('refresh');
+				};
+				document.getElementById('favList1').innerHTML='';
+				for (var i = 0; i < favorites.length; i++){
+					$('#favList1').append('<li><a href = "#' + ((favorites[i]).toLowerCase()) + '">' + (favorites[i]) + '</a></li>').listview('refresh');
+				};
+			}
+			
+ 			function addFavOne(thing){
+				favorites.push(thing);
+				document.getElementById('favList1').innerHTML='';
+				for (var i = 0; i < favorites.length; i++){
+					$('#favList1').append('<li><a href = "#' + ((favorites[i]).toLowerCase()) + '">' + (favorites[i]) + '</a></li>').listview('refresh');
+				};
+			}
+			
+			function makeListsTwo(){
+				document.getElementById('actList2').innerHTML='';
+				for (var i = 0; i < activities.length; i++){
+					$('#actList2').append('<li><a onclick="addFavTwo(\''+ activities[i] + '\')">' + (activities[i]) + '</a></li>').listview('refresh');
+				};
+				document.getElementById('favList2').innerHTML='';
+				for (var i = 0; i < favorites.length; i++){
+					$('#favList2').append('<li><a href = "#' + ((favorites[i]).toLowerCase()) + '">' + (favorites[i]) + '</a></li>').listview('refresh');
+				};
+			}
+			
+ 			function addFavTwo(thing){
+				favorites.push(thing);
+				document.getElementById('favList2').innerHTML='';
+				for (var i = 0; i < favorites.length; i++){
+					$('#favList2').append('<li><a href = "#' + ((favorites[i]).toLowerCase()) + '">' + (favorites[i]) + '</a></li>').listview('refresh');
+				};
+			}
+			
+			function makeListsThree(){
+				document.getElementById('actList3').innerHTML='';
+				for (var i = 0; i < activities.length; i++){
+					$('#actList3').append('<li><a onclick="addFavThree(\''+ activities[i] + '\')">' + (activities[i]) + '</a></li>').listview('refresh');
+				};
+				document.getElementById('favList3').innerHTML='';
+				for (var i = 0; i < favorites.length; i++){
+					$('#favList3').append('<li><a href = "#' + ((favorites[i]).toLowerCase()) + '">' + (favorites[i]) + '</a></li>').listview('refresh');
+				};
+			}
+			
+ 			function addFavThree(thing){
+				favorites.push(thing);
+				document.getElementById('favList3').innerHTML='';
+				for (var i = 0; i < favorites.length; i++){
+					$('#favList3').append('<li><a href = "#' + ((favorites[i]).toLowerCase()) + '">' + (favorites[i]) + '</a></li>').listview('refresh');
+				};
+			}
+			
+		</script>
+		
+		<div data-role="page" id="loggedIn" data-fullscreen="true"> <!--Home Page (logged in)-->
+			<!--Panel-->
+			<div data-role = "panel" data-dismissible="false" id = "mypanel1">
+				<div id = "status"><b>You are now logged in. Welcome.</b></div>
+				<div id="fb-root"></div>
+				<center>
+					<fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>
+				</center>
+				<br/>
+				<input type="button" value="Home" onclick="location.href='#loggedIn';"/>
+				<div id = "activityList"> <!-- To be fixed into customizable settings-->
+					<a href="#addEvent" data-rel="popup" data-role="button">Add Events</a><br/>
+					<ul data-role="listview" data-inset="true" id="favList">
+						<!--<li><a href = "#shopping">Shopping</a></li>-->
+					</ul>
+					<br><br>
+					<ul data-role="listview" data-filter-placeholder="Search activities..." data-inset="true" data-filter="true" data-filter-reveal="true" id="actList">
+					</ul>
+				<input type="button" value="Edit My Profile" onclick="location.href='#editProfile';"/>
+				<input type="button" value="Privacy/Security Settings" onclick="location.href='#editPrivacy';"/>
+				</div>
+			</div>			
+			<!--Header-->
+			<div data-role="header" data-position="fixed" data-theme ="b">
+				<h4><img src="img/clink word small.png"/></h4>
+				<a href = "#mypanel1" onclick="makeLists()">Toolbar</a>
+			</div>
+			<!--Content, changes according to user's login status-->
+			<div data-role="content" id = "contente">
+				<div data-role="popup" id="addEvent"><p>
+						<div data-role="fieldcontain">
+							<label for="name">Event Name: </label>
+							<input type="text" name="name" id="eventName" value="Mandatory" />
+						</div>
+						<div data-role="fieldcontain">
+							<label for="name">Event Date: </label>
+							<input type="date" name="name" id="eventDate" value="Optional" />
+						</div>
+						<div data-role="fieldcontain">
+							<label for="textarea">Event Description: </label>
+							<textarea name="textarea" id="eventDescription"></textarea>
+						</div>
+						<a href="#submitEvent" data-rel="popup" data-role="button">Submit Event!</a>
+				</p></div>
+				<div data-role="popup" id="submitEvent"><p>
+					<p>Your event has been sumitted!</p> <p>It is now under review and will be up shortly!</p>
+					<a href="#" data-rel="back" data-role="button" data-theme="b">OK</a>
+				</p></div>
+				<table><tr>
+					<td style="width:50%;text-align:center;padding-right:20px;"><ul data-role="listview">
+						<li data-theme="b"><h3>Top Clinkers</h3></li>
+						<li><!--Isabelle-->
+							<a href="#homeIsabelle" data-rel="popup" data-position-to="window"> 
+								<h3>Isabelle Wong</h3>
+									<p>
+										Both interested in: Hackathons, Shopping, Fooding, Watching Videos.<br/>
+										You clinkers went to the Google Makers Fair, shopped at U.O and ate Papaya before.
+									</p>
+								<img src="img/belleicon.jpg">
+							</a>
+							<div data-role="popup" id="homeIsabelle" class="ui-content">
+								<a href="#" data-rel="back" data-role="button" data-theme="b" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+								<br>
+								Top Clinker: <b>Isabelle Wong</b> <br/><br/>
+								Clinked since July, in Girls Who Code Program<br/>
+								28 Mutual Clinkers. <br/><br/>
+								<img src = "img/belleMe.jpg" /><br/><br/>
+								Both interested in: Hackathons, Shopping, Fooding, Watching Videos. <br/>
+								You clinkers went to the Google Maker Fair, shopped at U. O. and ate Papaya before <br/><br/>
+								<a href="#eventWithIsabelle" data-rel="popup" data-position-to="window">
+									Attend an event with this clinker today!
+								</a>
+								<br><br>
+								<div data-role="popup" id="eventWithIsabelle" class="ui-content">
+									<br>
+									<div data-role="fieldcontain">
+										<label for="name">Event Name: </label>
+										<input type="text" name="name" id="eventName" value="Mandatory" />
+									</div>
+									<div data-role="fieldcontain">
+										<label for="name">Event Date: </label>
+										<input type="date" name="name" id="eventDate" value="Optional" />
+									</div>
+									<div data-role="fieldcontain">
+										<label for="textarea">Event Description: </label>
+										<textarea name="textarea" id="eventDescription"></textarea>
+									</div>
+									<a href="#submitEvent" data-rel="popup" data-role="button">Submit Event!</a>
+									<br>
+								</div>
+							</div>
+						</li>
+						<li><!--Anya-->
+							<a href="#homeAnya" data-rel="popup" data-position-to="window"> 
+								<h3>Anya Hargil</h3>
+									<p>
+										Both interested in: Hackathons, Conventions, Coding, Fooding.<br/>
+										You clinkers went to the ATT Hackathon, Google Makers Fair and Karaoke before.
+									</p>
+								<img src="img/anyaicon.jpg">
+							</a>
+							<div data-role="popup" id="homeAnya" class="ui-content">
+								<a href="#" data-rel="back" data-role="button" data-theme="b" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>		
+								<br>
+								Top Clinker: <b>Anya Hargil</b> <br/><br/>
+								Clinked since July, in Girls Who Code Program<br/>
+								15 Mutual Clinkers. <br/><br/>
+								<img src = "img/anyaMe.jpg" /><br/><br/>
+								Both interested in: Hackathons, Conventions, Coding, Fooding.<br/>
+								You clinkers went to the ATT Hackathon, Google Makers Fair and Karaoke before.<br/>
+								<br>
+							</div>
+						</li>
+						<li><!--Amanda-->
+							<a href="#homeAmanda" data-rel="popup" data-position-to="window"> 
+								<h3>Amanda Chen</h3>
+									<p>
+										Both interested in: Shopping, Fooding, Watching Videos, English Glasses.<br/>
+										You clinkers went to Google Makers Fair, S'Mac, Urban and Karaoke before.
+									</p>
+								<img src="img/amandaicon.jpg">
+							</a>
+							<div data-role="popup" id="homeAmanda" class="ui-content">
+								<a href="#" data-rel="back" data-role="button" data-theme="b" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>				
+								<br>
+								Top Clinker: <b>Amanda Chen</b> <br/><br/>
+								Clinked since July, in Girls Who Code Program<br/>
+								27 Mutual Clinkers. <br/><br/>
+								<img src = "img/amandaMe.jpg" /><br/><br/>
+								Both interested in: Shopping, Fooding, Watching Videos, English Glasses.<br/>
+								You clinkers went to Google Makers Fair, S'Mac, Urban and Karaoke before.<br/>
+								<br>
+							</div>
+						</li>
+						<li><!--Molica-->
+							<a href="#homeMolica" data-rel="popup" data-position-to="window"> 
+								<h3>Molica Sin</h3>
+									<p>
+										Both interested in: Sports, Shopping, Coding, Fooding.<br/>
+										You clinkers went to the Google Makers Fair, W4th Park and Urban before.
+									</p>
+								<img src="img/molicaicon.jpg">
+							</a>
+							<div data-role="popup" id="homeMolica" class="ui-content">
+								<a href="#" data-rel="back" data-role="button" data-theme="b" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>		
+								<br>
+								Top Clinker: <b>Molica Sin</b> <br/><br/>
+								Clinked since September, in Brooklyn Technical High School<br/>
+								57 Mutual Clinkers. <br/><br/>
+								<img src = "img/molicaMe.JPG" /><br/><br/>
+								Both interested in: Sports, Shopping, Coding, Fooding.<br/>
+								You clinkers went to the Google Makers Fair, W4th Park and Urban before.<br/>
+								<br>
+							</div>
+						</li>
+						<li><!--Kafilah-->
+							<a href="#homeKafilah" data-rel="popup" data-position-to="window"> 
+								<h3>Kafilah Muhammad</h3>
+									<p>
+										Both interested in: Shopping, Coding, Fooding.<br/>
+										You clinkers went to the ATT Hackathon, Google Makers Fair and W4th Park before.
+									</p>
+								<img src="img/kafilahicon.jpg">
+							</a>
+							<div data-role="popup" id="homeKafilah" class="ui-content">
+								<a href="#" data-rel="back" data-role="button" data-theme="b" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>				
+								<br>
+								Top Clinker: <b>Kafilah Muhammad</b> <br/><br/>
+								Clinked since July, in Girls Who Code Program.<br/>
+								30 Mutual Clinkers. <br/><br/>
+								<img src = "img/kafilahMe.jpg" /><br/><br/>
+								Both interested in: Shopping, Coding, Fooding.<br/>
+								You clinkers went to the ATT Hackathon, Google Makers Fair and W4th Park before.<br/>
+								<br>
+							</div>
+						</li>
+						<li><a href="#"> <!--Sheree-->
+							<h3>Sheree Lewis</h3>
+								<p>
+									Both interested in: Conventions, Blogging, Frontend Development.<br/>
+									You clinkers went to the Google Makers Fair and Karaoke before.
+								</p>
+							<img src="img/shereeicon.jpg">
+						</a></li>
+						<li><a href="#"> <!--Linda-->
+							<h3>Linda Nguyen</h3>
+								<p>
+									Both interested in: Hackathons, Conventions, Coding, Fooding.<br/>
+									You clinkers went to the Civil Hackathon, Google Makers Fair and K-Town before.
+								</p>
+							<img src="img/lindaicon.jpg">
+						</a></li>
+						<li><a href="#"> <!--Gabriella-->
+							<h3>Gabriella Chu</h3>
+								<p>
+									Both interested in: Shopping, Conventions, Cuddling, Fooding.<br/>
+									You clinkers went to the Google Makers Fair and Pretzel Cave before.
+								</p>
+							<img src="img/gabriellaicon.jpg">
+						</a></li>
+						<li><a href="#"> <!--Roxy-->
+							<h3>Roxy Banik</h3>
+								<p>
+									Both interested in: Sports, Snuggling.<br/>
+									You clinkers went to the Google Makers Fair and Photo Shoot before.
+								</p>
+							<img src="img/roxyicon.jpg">
+						</a></li>
+						<li><a href="#"> <!--Kenya-->
+							<h3>Kay Gordon</h3>
+								<p>
+									Both interested in: Shopping, Drinking Milk, Coding, Fooding.<br/>
+									You clinkers went to the Google Makers Fair, Pantry and Karaoke before.
+								</p>
+							<img src="img/kenyaicon.jpg">
+						</a></li>
+					</ul></td>
+					<td style="width:50%;text-align:center;padding-left:20px;"><ul data-role="listview">
+						<li data-theme="b"><h3>Suggested Clinkers</h3></li>
+						<li><!--Shirley-->
+							<a href="#homeShirley" data-rel="popup" data-position-to="window"> 
+								<h3>Shirley Wu</h3>
+									<p>
+										Both interested in: Shopping, Fooding. <br/>
+										83 mutual clinkers including Ming Cheung and Jake Christensen.
+									</p>
+								<img src="img/shirleyicon.jpg">
+							</a>
+							<div data-role="popup" id="homeShirley" class="ui-content">
+								<a href="#" data-rel="back" data-role="button" data-theme="b" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>			
+								<br>
+								Suggested Clinker: <b>Shirley Wu</b> <br/><br/>
+								Average Rating: 4.7/5<br/>
+								83 Mutual Clinkers. <br/><br/>
+								<img src = "img/shirleyBig.jpg" /><br/><br/>
+								Both interested in: Shopping, Fooding. <br/>
+								Clink today to start a new friendship! <br/>
+								<br>
+							</div>
+						</li>
+						<li><!--Simon-->
+							<a href="#homeSimon" data-rel="popup" data-position-to="window"> 
+								<h3>Simon Melekohv</h3>
+									<p>
+										Both interested in: Skateboarding, Spongebob Squarepants. <br/>
+										113 mutual clinkers including Ming Cheung and Seelia Chung.
+									</p>
+								<img src="img/simonicon.jpg">
+							</a>
+							<div data-role="popup" id="homeSimon" class="ui-content">
+								<a href="#" data-rel="back" data-role="button" data-theme="b" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>		
+								<br>
+								Suggested Clinker: <b>Simon Melekhov</b> <br/><br/>
+								Average Rating: 4.7/5<br/>
+								113 Mutual Clinkers. <br/><br/>
+								<img src = "img/simonBig.jpg" /><br/><br/>
+								Both interested in: Skateboarding, Spongebob Squarepants. <br/>
+								Clink today to start a new friendship! <br/>
+								<br>
+							</div>
+						</li>
+						<li><a href="#"> <!--Roman-->
+							<h3>Roman Gutin</h3>
+								<p>
+									Both interested in: Sports, European History, Martial Arts. <br/>
+									73 mutual clinkers including Vivian Gertrude Wang and Peeta Nguyen.
+								</p>
+							<img src="img/romanicon.jpg">
+						</a></li>
+						<li><a href="#"> <!--Ibnat-->
+							<h3>Ibnat Inqiyad</h3>
+								<p>
+									Both interested in: Math, Alternative Rock. <br/>
+									65 mutual clinkers including Natalie Yam and Maliat Manzur.
+								</p>
+							<img src="img/ibnaticon.jpg">
+						</a></li>
+						<li><a href="#"> <!--Jianqiao-->
+							<h3>Jianqiao Huang</h3>
+								<p>
+									Both interested in: Orchestral Music, Piano. <br/>
+									77 mutual clinkers including Maliat Manzur and Molica Sin.
+								</p>
+							<img src="img/jianqiaoicon.jpg">
+						</a></li>
+						<li><a href="#"> <!--Jenny-->
+							<h3>Jenny Ha</h3>
+								<p>
+									Both interested in: Pokemon. <br/>
+									75 mutual clinkers including Stephanie Nan and Hussein Alzein.
+								</p>
+							<img src="img/jennyicon.jpg">
+						</a></li>
+						<li><a href="#"> <!--Joanna-->
+							<h3>Joanna Eng</h3> 
+								<p>
+									Both interested in: Shopping, Fooding. <br/>
+									57 mutual clinkers including Danny Chan and Linda Nguye.n
+								</p>
+							<img src="img/joannaicon.jpg">
+						</a></li>
+						<li><a href="#"> <!--Jenny-->
+							<h3>Jenny Shmukler</h3>
+								<p>
+									Both interested in: History, Balloons. <br/>
+									47 mutual clinkers including Annabelle Swain and Natalie Yum.
+								</p>
+							<img src="img/jennysicon.jpg">
+						</a></li>
+						<li><a href="#"> <!--Henry-->
+							<h3>Henry Huang</h3>
+								<p>
+									Both interested in: Sports. <br/>
+									33 mutual clinkers including Jiajun Li and Seelia Chung.
+								</p>
+							<img src="img/henryicon.jpg">
+						</a></li>
+						<li><a href="#"> <!--Simon-->
+							<h3>Xiuna Lin</h3>
+								<p>
+									Both interested in: Shopping, Balloons. <br/>
+									67 mutual clinkers including Ming Cheung and Jake Christensen.
+								</p>
+							<img src="img/xiunaicon.jpg">
+						</a></li>
+					</ul></td>
+				</tr></table>
+				<br><br><br>
+			</div>
+			<!--Footer-->
+			<div data-role="footer" data-position="fixed" data-theme ="b"> 
+				<h3>"Where Friendships Start"</h3>
+			</div>
+		</div>
+		
+		<div data-role="page" id="editProfile"> <!--Page for Edit Profile-->
+			<!--Panel-->
+			<div data-role = "panel" data-dismissible="false" id = "mypanel1">
+				<div id = "status"><b>You are now logged in. Welcome.</b></div>
+				<div id="fb-root"></div>
+				<center>
+					<fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>
+				</center>
+				<br/>
+				<input type="button" value="Home" onclick="location.href='#loggedIn';"/>
+				<div id = "activityList"> <!-- To be fixed into customizable settings-->
+					<a href="#addEvent" data-rel="popup" data-role="button">Add Events</a><br/>
+					<ul data-role="listview" data-inset="true" id="favList1">
+						<!--<li><a href = "#shopping">Shopping</a></li>-->
+					</ul>
+					<br><br>
+					<ul data-role="listview" data-filter-placeholder="Search activities..." data-inset="true" data-filter="true" data-filter-reveal="true" id="actList1">
+					</ul>
+				<input type="button" value="Edit My Profile" onclick="location.href='#editProfile';"/>
+				<input type="button" value="Privacy/Security Settings" onclick="location.href='#editPrivacy';"/>
+				</div>
+			</div>								
+			<!--Header-->
+			<div data-role="header" data-position="fixed" data-theme ="b">
+				<h4><img src="img/clink word small.png"/></h4>
+				<a href = "#mypanel1" onclick="makeListsOne()">Toolbar</a>
+			</div>
+			<!--Content, changes according to user's login status-->
+			<div data-role="content" id = "contente">
+				<div data-role="popup" id="addEvent"><p>
+						<div data-role="fieldcontain">
+							<label for="name">Event Name: </label>
+							<input type="text" name="name" id="eventName" value="Mandatory" />
+						</div>
+						<div data-role="fieldcontain">
+							<label for="name">Event Date: </label>
+							<input type="date" name="name" id="eventDate" value="Optional" />
+						</div>
+						<div data-role="fieldcontain">
+							<label for="textarea">Event Description: </label>
+							<textarea name="textarea" id="eventDescription"></textarea>
+						</div>
+						<a href="#submitEvent" data-rel="popup" data-role="button">Submit Event!</a>
+				</p></div>
+				<div data-role="popup" id="submitEvent"><p>
+					<p>Your event has been sumitted!</p> <p>It is now under review and will be up shortly!</p>
+					<a href="#" data-rel="back" data-role="button" data-theme="b">OK</a>
+				</p></div>
+				<!--Profile Edit-->
+				<div id = "myProfile">
+					<h1 id= "fonts">My Profile</h1>
+					<hr></hr>
+					<div id= "covers">
+						<span class = "fileinput-button" id= "profpic" data-role = "button">
+							<span>Upload Image</span>
+							<input type = "file" name = "image" accept = "image/*" multiple/>
+						</span>
+						<img src= "img/mustache2.PNG" alt= "" class="inner-image"/>
+						<img src= "img/blue cover.jpg" alt= ""/>
+					</div>
+					<div class= "inputs">
+						<form action = "#" method = "post" >
+							<div data-role = "fieldcontain">
+								<label for = "basic"><b>My Name: </b></label>
+								<input type = "text" name = "name" id = "userName" placeholder = "For Example: John Smith" />
+							</div><br/>
+							<div id = "options"><select name = "select-choice-a" data-native-menu = "false">
+								<option>My Sex</option>
+								<option value = "male">Male</option>
+								<option value = "female">Female</option>
+							</select></div>
+							<div id= "age"><select name= "select-choice-a" data-native-menu = "false">
+								<option>My Age</option>
+								<option value = "tart">18-25</option>
+								<option value = "fondue">25-40</option>
+								<option value = "macaron">40-60</option>
+								<option value = "mousse">60+</option>
+							</select></div>
+							<br/><br/><br/><br/>
+							<label for= "basic"><b>Currently Interested In: </b></label>
+								<input type = "text" name = "interests"/>
+							<br/><hr/><hr/>
+							<h3 id= "contact">Contact Information</h3>
+							<div data-role = "fieldcontain">
+								<!--<label for = "basic"><b>Cell Number: </b></label>-->
+								<input type = "text" name = "name" placeholder = "Phone Number" />
+							</div>
+							<div data-role = "fieldcontain">
+								<!--<label for = "basic"><b>Email: </b></label>-->
+								<input type = "text" name = "name" placeholder = "Email" />
+							</div>
+							<br/><hr/><hr/>
+							<div data-role = "fieldcontain">
+								<label for = "textarea"><b>Description: </b></label>
+								<textarea name = "textarea" id = "textarea"></textarea>	
+							</div>
+							<div id= "boxed">
+								<table><tr>
+									<td><img src= "img/mandy.PNG"></td>
+									<td><img src= "img/keyue.PNG"></td>
+									<td><img src= "img/kafilah.PNG"></td>
+									<td><img src= "img/meh.PNG"></td>
+								</tr><tr>
+									<td><img src= "img/linda.PNG"></td>
+									<td><img src= "img/anya.PNG"></td>
+									<td><img src= "img/molica.PNG"></td>
+									<td><img src= "img/madina.PNG"><td>
+								</tr></table>
+							</div>
+							<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+							<input type="button" data-theme= "b" value="Save" onclick= "saveProfile()">
+							<br><br>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!--Footer-->
+			<div data-role="footer" data-position="fixed" data-theme ="b"> 
+				<h3>"Where Friendships Start"</h3>
+			</div>			
+		</div>
+		
+		<div data-role="page" id="editPrivacy"> <!--Page for Edit Privacy-->
+			<!--Panel-->
+			<div data-role = "panel" data-dismissible="false" id = "mypanel1">
+				<div id = "status"><b>You are now logged in. Welcome.</b></div>
+				<div id="fb-root"></div>
+				<center>
+					<fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>
+				</center>
+				<br/>
+				<input type="button" value="Home" onclick="location.href='#loggedIn';"/>
+				<div id = "activityList"> <!-- To be fixed into customizable settings-->
+					<a href="#addEvent" data-rel="popup" data-role="button">Add Events</a><br/>
+					<ul data-role="listview" data-inset="true" id="favList2">
+						<!--<li><a href = "#shopping">Shopping</a></li>-->
+					</ul>
+					<br><br>
+					<ul data-role="listview" data-filter-placeholder="Search activities..." data-inset="true" data-filter="true" data-filter-reveal="true" id="actList2">
+					</ul>
+				<input type="button" value="Edit My Profile" onclick="location.href='#editProfile';"/>
+				<input type="button" value="Privacy/Security Settings" onclick="location.href='#editPrivacy';"/>
+				</div>
+			</div>					
+			<!--Header-->
+			<div data-role="header" data-position="fixed" data-theme ="b">
+				<h4><img src="img/clink word small.png"/></h4>
+				<a href = "#mypanel1" onclick="makeListsTwo()">Toolbar</a>
+			</div>
+			<!--Content, changes according to user's login status-->
+			<div data-role="content" id = "contente">
+				<div data-role="popup" id="addEvent"><p>
+						<div data-role="fieldcontain">
+							<label for="name">Event Name: </label>
+							<input type="text" name="name" id="eventName" value="Mandatory" />
+						</div>
+						<div data-role="fieldcontain">
+							<label for="name">Event Date: </label>
+							<input type="date" name="name" id="eventDate" value="Optional" />
+						</div>
+						<div data-role="fieldcontain">
+							<label for="textarea">Event Description: </label>
+							<textarea name="textarea" id="eventDescription"></textarea>
+						</div>
+						<a href="#submitEvent" data-rel="popup" data-role="button">Submit Event!</a>
+				</p></div>
+				<div data-role="popup" id="submitEvent"><p>
+					<p>Your event has been sumitted!</p> <p>It is now under review and will be up shortly!</p>
+					<a href="#" data-rel="back" data-role="button" data-theme="b">OK</a>
+				</p></div>
+				<div id= "mySettings">
+					<h1 id= "fonts">Privacy Settings</h1><hr/>
+					<table><tr>
+						<td><div id= "sizes"><p>Who can I clink with?</p></div></td>
+						<td><div id= "clicks"><select name= "select-choice-a" data-native-menu= "false">
+							<option value= "1frand">at least 1 mutual friend (somewhat private)</option>
+							<option value= "5frands">at least 5+ mutual friends (very private)</option>
+							<option value= "nofrands">no mutual friends (open)</option>
+						</div></td>
+					</tr></table>
+					<br/><hr/><br/><table><tr>
+						<td><div id= "sizes"><p>What can others see on your profile (until clinked)?</p></div></td>
+						<td><div id= "clicks"><select name= "select-choice-a" data-native-menu= "false">
+							<option>Pictures</option>
+							<option value= "pro">Profile Picture Only</option>
+							<option value= "tan">All My Pictures</option>
+							<option value= "nope">None Of My Pictures</option>
+						</select></div></td>
+					</tr></table>
+					<div id= "done">
+						<input type= "checkbox" name= "checkbox-1" id= "oldie" class= "custom"/>
+						<label for= "oldie">Age</label>
+						<input type= "checkbox" name= "checkbox-2" id= "numba"/>
+						<label for= "numba">Contact Info</label>
+						<input type= "checkbox" name= "checkbox-3" id= "describe"/>
+						<label for= "describe">Description</label>
+					</div>
+					<br/><hr/><br/>
+					<table><tr>
+						<td><div id= "sizes"><p>Who do you want to clink with?</p></div></td>
+						<td><div id= "clicks"><select name= "select-choice-a" data-native-menu= "false">
+							<option value= "neighborhood">People in Your Neighborhood</option>
+							<option value= "city">People in Your City</option>
+							<option value= "state">People in Your State</option>
+						</div></td>
+					</tr></table>
+					<br/><hr/><br/>
+					<h3 id= "square">Who do you want to block/unblock?</h3>
+					<div data-role= "fieldcontain">
+						<input type="text" name="people" value=""/>
+					</div>
+					<table><tr>
+						<td><div id= "hate"><input type = "button" data-theme= "b" value = "Block" onclick = "Block()"/></div></td>
+						<td><div id= "love"><input type= "button" data-theme= "b" value= "Unblock" onclick= "Unblock()"/></div></td>
+					</tr></table>
+					<br/><hr/><br/>
+					<input type= "button" data-theme= "b" value= "Save" onclick= "savePrivacy()">
+					<br><br>
+				</div>
+			</div>
+			<!--Footer-->
+			<div data-role="footer" data-position="fixed" data-theme ="b"> 
+				<h3>"Where Friendships Start"</h3>
+			</div>	
+		</div>	
+		<div data-role="page" id="shopping">
+			<!--Panel-->
+			<div data-role = "panel" data-dismissible="false" id = "mypanel1">
+				<div id = "status"><b>You are now logged in. Welcome.</b></div>
+				<div id="fb-root"></div>
+				<center>
+					<fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>
+				</center>
+				<br/>
+				<input type="button" value="Home" onclick="location.href='#loggedIn';"/>
+				<div id = "activityList"> <!-- To be fixed into customizable settings-->
+					<a href="#addEvent" data-rel="popup" data-role="button">Add Events</a><br/>
+					<ul data-role="listview" data-inset="true" id="favList3">
+						<!--<li><a href = "#shopping">Shopping</a></li>-->
+					</ul>
+					<br><br>
+					<ul data-role="listview" data-filter-placeholder="Search activities..." data-inset="true" data-filter="true" data-filter-reveal="true" id="actList3">
+					</ul>
+				<input type="button" value="Edit My Profile" onclick="location.href='#editProfile';"/>
+				<input type="button" value="Privacy/Security Settings" onclick="location.href='#editPrivacy';"/>
+				</div>
+			</div>
+			<!--Header-->
+			<div data-role="header" data-position="fixed" data-theme ="b">
+				<h4><img src="img/clink word small.png"/></h4>
+				<a href = "#mypanel1" onclick="makeListsThree()">Toolbar</a>
+			</div>
+			<!--Content, changes according to user's login status-->
+			<div data-role="content" id = "contente">
+				<div data-role="popup" id="addEvent"><p>
+						<div data-role="fieldcontain">
+							<label for="name">Event Name: </label>
+							<input type="text" name="name" id="eventName" value="Mandatory" />
+						</div>
+						<div data-role="fieldcontain">
+							<label for="name">Event Date: </label>
+							<input type="date" name="name" id="eventDate" value="Optional" />
+						</div>
+						<div data-role="fieldcontain">
+							<label for="textarea">Event Description: </label>
+							<textarea name="textarea" id="eventDescription"></textarea>
+						</div>
+						<a href="#submitEvent" data-rel="popup" data-role="button">Submit Event!</a>
+				</p></div>
+				<div data-role="popup" id="submitEvent"><p>
+					<p>Your event has been sumitted!</p> <p>It is now under review and will be up shortly!</p>
+					<a href="#" data-rel="back" data-role="button" data-theme="b">OK</a>
+				</p></div>
+				<div id="actName">
+					<center><p><b>Activity:</b> Shopping<br></p></center>
+				<div>
+				<table><tr>
+					<td style="width:50%;text-align:center;padding-right:20px;"><ul data-role="listview">
+						<li data-theme="b"><h3>Clinkers Also Interested in Shopping</h3></li>
+						<li><!--Isabelle-->
+							<a href="#homeIsabelle" data-rel="popup" data-position-to="window"> 
+								<h3>Isabelle Wong</h3>
+									<p>
+										Both interested in: Hackathons, Shopping, Fooding, Watching Videos.<br/>
+										You clinkers went to the Google Makers Fair, shopped at U.O and ate Papaya before.
+									</p>
+								<img src="img/belleicon.jpg">
+							</a>
+							<div data-role="popup" id="homeIsabelle" class="ui-content">
+								<a href="#" data-rel="back" data-role="button" data-theme="b" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+								<br>
+								Top Clinker: <b>Isabelle Wong</b> <br/><br/>
+								Clinked since July, in Girls Who Code Program<br/>
+								28 Mutual Clinkers. <br/><br/>
+								<img src = "img/belleMe.jpg" /><br/><br/>
+								Both interested in: Hackathons, Shopping, Fooding, Watching Videos. <br/>
+								You clinkers went to the Google Maker Fair, shopped at U. O. and ate Papaya before <br/><br/>
+								<a href="#eventWithIsabelle" data-rel="popup" data-position-to="window">
+									Attend an event with this clinker today!
+								</a>
+								<br><br>
+								<div data-role="popup" id="eventWithIsabelle" class="ui-content">
+									<br>
+									<div data-role="fieldcontain">
+										<label for="name">Event Name: </label>
+										<input type="text" name="name" id="eventName" value="Mandatory" />
+									</div>
+									<div data-role="fieldcontain">
+										<label for="name">Event Date: </label>
+										<input type="date" name="name" id="eventDate" value="Optional" />
+									</div>
+									<div data-role="fieldcontain">
+										<label for="textarea">Event Description: </label>
+										<textarea name="textarea" id="eventDescription"></textarea>
+									</div>
+									<a href="#submitEvent" data-rel="popup" data-role="button">Submit Event!</a>
+									<br>
+								</div>
+							</div>
+						</li>
+						<li><!--Amanda-->
+							<a href="#homeAmanda" data-rel="popup" data-position-to="window"> 
+								<h3>Amanda Chen</h3>
+									<p>
+										Both interested in: Shopping, Fooding, Watching Videos, English Glasses.<br/>
+										You clinkers went to Google Makers Fair, S'Mac, Urban and Karaoke before.
+									</p>
+								<img src="img/amandaicon.jpg">
+							</a>
+							<div data-role="popup" id="homeAmanda" class="ui-content">
+								<a href="#" data-rel="back" data-role="button" data-theme="b" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>				
+								<br>
+								Top Clinker: <b>Amanda Chen</b> <br/><br/>
+								Clinked since July, in Girls Who Code Program<br/>
+								27 Mutual Clinkers. <br/><br/>
+								<img src = "img/amandaMe.jpg" /><br/><br/>
+								Both interested in: Shopping, Fooding, Watching Videos, English Glasses.<br/>
+								You clinkers went to Google Makers Fair, S'Mac, Urban and Karaoke before.<br/>
+								<br>
+							</div>
+						</li>
+						<li><!--Molica-->
+							<a href="#homeMolica" data-rel="popup" data-position-to="window"> 
+								<h3>Molica Sin</h3>
+									<p>
+										Both interested in: Sports, Shopping, Coding, Fooding.<br/>
+										You clinkers went to the Google Makers Fair, W4th Park and Urban before.
+									</p>
+								<img src="img/molicaicon.jpg">
+							</a>
+							<div data-role="popup" id="homeMolica" class="ui-content">
+								<a href="#" data-rel="back" data-role="button" data-theme="b" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>		
+								<br>
+								Top Clinker: <b>Molica Sin</b> <br/><br/>
+								Clinked since September, in Brooklyn Technical High School<br/>
+								57 Mutual Clinkers. <br/><br/>
+								<img src = "img/molicaMe.JPG" /><br/><br/>
+								Both interested in: Sports, Shopping, Coding, Fooding.<br/>
+								You clinkers went to the Google Makers Fair, W4th Park and Urban before.<br/>
+								<br>
+							</div>
+						</li>
+						<li><!--Kafilah-->
+							<a href="#homeKafilah" data-rel="popup" data-position-to="window"> 
+								<h3>Kafilah Muhammad</h3>
+									<p>
+										Both interested in: Shopping, Coding, Fooding.<br/>
+										You clinkers went to the ATT Hackathon, Google Makers Fair and W4th Park before.
+									</p>
+								<img src="img/kafilahicon.jpg">
+							</a>
+							<div data-role="popup" id="homeKafilah" class="ui-content">
+								<a href="#" data-rel="back" data-role="button" data-theme="b" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>				
+								<br>
+								Top Clinker: <b>Kafilah Muhammad</b> <br/><br/>
+								Clinked since July, in Girls Who Code Program.<br/>
+								30 Mutual Clinkers. <br/><br/>
+								<img src = "img/kafilahMe.jpg" /><br/><br/>
+								Both interested in: Shopping, Coding, Fooding.<br/>
+								You clinkers went to the ATT Hackathon, Google Makers Fair and W4th Park before.<br/>
+								<br>
+							</div>
+						</li>
+						<li><a href="#"> <!--Gabriella-->
+							<h3>Gabriella Chu</h3>
+								<p>
+									Both interested in: Shopping, Conventions, Cuddling, Fooding.<br/>
+									You clinkers went to the Google Makers Fair and Pretzel Cave before.
+								</p>
+							<img src="img/gabriellaicon.jpg">
+						</a></li>
+						<li><a href="#"> <!--Kenya-->
+							<h3>Kay Gordon</h3>
+								<p>
+									Both interested in: Shopping, Drinking Milk, Coding, Fooding.<br/>
+									You clinkers went to the Google Makers Fair, Pantry and Karaoke before.
+								</p>
+							<img src="img/kenyaicon.jpg">
+						</a></li>
+						<li><!--Shirley-->
+							<a href="#homeShirley" data-rel="popup" data-position-to="window"> 
+								<h3>Shirley Wu</h3>
+									<p>
+										Both interested in: Shopping, Fooding. <br/>
+										83 mutual clinkers including Ming Cheung and Jake Christensen.
+									</p>
+								<img src="img/shirleyicon.jpg">
+							</a>
+							<div data-role="popup" id="homeShirley" class="ui-content">
+								<a href="#" data-rel="back" data-role="button" data-theme="b" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>			
+								<br>
+								Suggested Clinker: <b>Shirley Wu</b> <br/><br/>
+								Average Rating: 4.7/5<br/>
+								83 Mutual Clinkers. <br/><br/>
+								<img src = "img/shirleyBig.jpg" /><br/><br/>
+								Both interested in: Shopping, Fooding. <br/>
+								Clink today to start a new friendship! <br/>
+								<br>
+							</div>
+						</li>
+						<li><a href="#"> <!--Joanna-->
+							<h3>Joanna Eng</h3> 
+								<p>
+									Both interested in: Shopping, Fooding. <br/>
+									57 mutual clinkers including Danny Chan and Linda Nguyen
+								</p>
+							<img src="img/joannaicon.jpg">
+						</a></li>
+						<li><a href="#"> <!--Simon-->
+							<h3>Xiuna Lin</h3>
+								<p>
+									Both interested in: Shopping, Balloons. <br/>
+									67 mutual clinkers including Ming Cheung and Jake Christensen.
+								</p>
+							<img src="img/xiunaicon.jpg">
+						</a></li>
+					</ul></td>
+				</tr></table>
+				<br><br><br>
+			</div>
+			<!--Footer-->
+			<div data-role="footer" data-position="fixed" data-theme ="b"> 
+				<h3>"Where Friendships Start"</h3>
+			</div>
+		</div>
+	</body>
+</html>
