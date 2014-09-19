@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>clink!</title>
+		
+		<link rel="stylesheet"  href="http://jquerymobile.com/demos/1.2.0/css/themes/default/jquery.mobile-1.2.0.css" />
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.css" />
+		<link rel="stylesheet" href="css/example.css">
+		<link rel="stylesheet" href="css/font-awesome.min.css">
+		<style>
+			body			{text-align:center;}
+			#gallery		{display:block;}
+			#settings		{margin-right: 100px;}
+			#row			{margin-top: 20px;}
+			#space			{width: 50px;}
+			#space2			{width: 480px;}
+			#pic			{margin-top: 30px; margin-left: 80px; float: left;}
+			#userName		{margin-right: 650px;}
+			#upload			{margin-left: 260px; float: left;}
+			#loginButton	{display:block;}
+			ul.images		{margin: 0px; white-space: nowrap; width: 600px; overflow-x: auto; position: absolute;}
+			ul.images li	{display: inline; width: 150px; height: 150px;}
+		</style>
+		<style> <!-- For Gallery -->
+		body {
+		  -webkit-font-smoothing: antialiased;
+		  font: normal 15px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
+		  color: #232525;
+		  padding-top:70px;
+		}
+				
+		#slides {
+		  display: none
+		}
+
+		.container {
+		  margin: 0 auto
+		}
+
+		/* For tablets & smart phones */
+		@media (max-width: 767px) {
+		  body {
+			padding-left: 20px;
+			padding-right: 20px;
+		  }
+		  .container {
+			width: auto
+		  }
+		}
+
+		/* For smartphones */
+		@media (max-width: 480px) {
+		  .container {
+			width: auto
+		  }
+		}
+
+		/* For smaller displays like laptops */
+		@media (min-width: 768px) and (max-width: 979px) {
+		  .container {
+			width: 724px
+		  }
+		}
+
+		/* For larger displays */
+		@media (min-width: 1200px) {
+		  .container {
+			width: 1170px
+		  }
+		}
+
+		#slides .slidesjs-navigation {
+		  margin-top:3px;
+		}
+
+		#slides .slidesjs-previous {
+		  margin-right: 5px;
+		  float: left;
+		}
+
+		#slides .slidesjs-next {
+		  margin-right: 5px;
+		  float: left;
+		}
+
+		.slidesjs-pagination {
+		  margin: 6px 0 0;
+		  float: right;
+		  list-style: none;
+		}
+
+		.slidesjs-pagination li {
+		  float: left;
+		  margin: 0 1px;
+		}
+
+		.slidesjs-pagination li a {
+		  display: block;
+		  width: 13px;
+		  height: 0;
+		  padding-top: 13px;
+		  background-image: url(img/pagination.png);
+		  background-position: 0 0;
+		  float: left;
+		  overflow: hidden;
+		}
+
+		.slidesjs-pagination li a.active,
+		.slidesjs-pagination li a:hover.active {
+		  background-position: 0 -13px
+		}
+
+		.slidesjs-pagination li a:hover {
+		  background-position: 0 -26px
+		}
+
+		#slides a:link,
+		#slides a:visited {
+		  color: #333
+		}
+
+		#slides a:hover,
+		#slides a:active {
+		  color: #1693a5
+		}
+
+		.navbar {
+		  overflow: hidden
+		}
+		</style>
+		<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+		<script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>
+		<script src="http://jquerymobile.com/demos/1.2.0/docs/_assets/js/jqm-docs.js"></script> 
+		<script src="js/jquery.slides.min.js"></script>
+		<script> <!-- For Gallery -->
+			$(function() {
+			  $('#slides').slidesjs({
+				width: 940,
+				height: 528,
+				navigation: false,
+				pagination: {
+					active: true,
+					effect: "slide"
+				}
+			  });
+			});
+		</script>		
+	</head>
+	
+	<body>
+		<script src="//connect.facebook.net/en_US/all.js"></script>
+		<script type="text/javascript">
+			// Initialize the Facebook JavaScript SDK
+			FB.init({
+				appId: '589384171112889',
+				xfbml: true,
+				status: true,
+				cookie: true,
+			});
+
+			// Here we run a very simple test of the Graph API after login is successful. 
+			// This testAPI() function is only called in those cases. 
+			function testAPI() {
+				console.log('Welcome!  Fetching your information.... ');
+				FB.api('/me', function(response) {
+				console.log('Good to see you, ' + response.name + '.');
+				});
+			}
+
+			// Check if the current user is logged in and has authorized the app
+			FB.getLoginStatus(checkLoginStatus);
+
+			// Login in the current user via Facebook and ask for email permission
+			function authUser() {
+				FB.login(checkLoginStatus, {scope:'email'});
+			}
+
+			// Check the result of the user status and display login button if necessary
+			function checkLoginStatus(response) {
+				alert("Response:" + response.status);
+				var loginStatus = "You are not logged in yet. <br/>Please sign in with facebook."
+				
+				if(response && response.status == 'connected') {//response successful and connected
+					testAPI();
+					//alert("You are logged in! Directing you to the user's home page.");
+					window.location.replace("http://www.blahblah.byethost7.com/loggedIn.html");
+					//alert("pass location");
+					// Hide the login button
+					document.getElementById('loginButton').style.display = 'none';
+					// Now Personalize the User Experience
+					console.log('Access Token: ' + response.authResponse.accessToken);
+				} else { //if not connected
+					FB.login();
+					document.getElementById("status").innerHTML = loginStatus;
+					alert("You are not signed in yet! Please log in with facebook!");
+					// Display the login button
+					document.getElementById('loginButton').style.display = 'block';
+				}
+			}
+		</script>
+
+		<div data-role="page" id="home" data-fullscreen="true"> <!--Home Page (!logged in)-->
+			<!--Panel-->
+			<div data-role = "panel" data-dismissible="false" id = "mypanel1">
+				<div id = "status"></div>
+				<div id="fb-root"></div>
+				<center>
+					<fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>
+				</center>
+			</div>			
+			<!--Header-->
+			<div data-role="header" data-position="fixed" data-theme ="b">
+				<h4><img src="img/clink word small.png"/></h4>
+				<a href = "#mypanel1">Toolbar</a>
+			</div>
+			<!--Content, changes according to user's login status-->
+			<div data-role="content" id = "contente">
+				<br/><br/><br/>
+				<div class="container">
+				<div id="slides">
+				  <img src="img/example-slide-1.jpg">
+				  <img src="img/example-slide-2.jpg">
+				  <img src="img/example-slide-3.jpg">
+				  <img src="img/example-slide-4.jpg">
+				  <a href="#" class="slidesjs-previous slidesjs-navigation"><i class="icon-chevron-left icon-large"></i></a>
+				  <a href="#" class="slidesjs-next slidesjs-navigation"><i class="icon-chevron-right icon-large"></i></a>
+				</div>
+				</div>
+			</div>
+			<!--Footer-->
+			<div data-role="footer" data-position="fixed" data-theme ="b"> 
+				<h3>"Where Friendships Start"</h3>
+			</div>
+		</div>		
+	</body>
+</html>
